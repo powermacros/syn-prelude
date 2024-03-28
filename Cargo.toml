@@ -1,0 +1,19 @@
+[package]
+name = "syn-prelude"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+name = "syn_prelude"
+path = "src/lib.rs"
+
+[workspace]
+resolver = "2"
+members = ["syn-prelude-macros"]
+
+[dependencies]
+syn = { version = "2", features = ["full", "extra-traits"] }
+proc-macro2 = { version = "1", features = ["span-locations"] }
+quote = { version = "1" }
+convert_case = "0.6"
+syn-prelude-macros = { path = "syn-prelude-macros" }
