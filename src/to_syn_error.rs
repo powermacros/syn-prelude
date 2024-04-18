@@ -112,3 +112,40 @@ impl ToOptionalSynError for Vec<Option<Span>> {
         }
     }
 }
+
+pub trait JoinSynErrors {
+    fn join_errors(self) -> Option<syn::Error>;
+}
+
+impl JoinSynErrors for Vec<syn::Error> {
+    fn join_errors(self) -> Option<syn::Error> {
+        let mut i = self.into_iter();
+        if let Some(mut err) = i.next() {
+            while let Some(e) = i.next() {
+                err.combine(e);
+            }
+            Some(err)
+        } else {
+            None
+        }
+    }
+}
+
+impl<T> JoinSynErrors for Vec<syn::Result<T>> {
+    fn join_errors(self) -> Option<syn::Error> {
+        let mut i = self.into_iter();
+        if let Some(res) = i.next() {
+            let mut final_err: Option<syn::Error> = None;
+            if let Err(err) = res {
+                if let Some(final_err) = &mut final_err {
+                    final_err.combine(err);
+                } else {
+                    final_err = Some(err);
+                }
+            }
+            final_err
+        } else {
+            None
+        }
+    }
+}
