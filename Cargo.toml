@@ -2,6 +2,11 @@
 name = "syn-prelude"
 version = "0.1.0"
 edition = "2021"
+description = "prelude traits and helpers for enhancing 'syn'/'proc-macro2' lib"
+license = "MIT"
+documentation = "https://docs.rs/syn-prelude"
+homepage = "https://github.com/powermacros/syn-prelude"
+repository = "https://github.com/powermacros/syn-prelude"
 
 [lib]
 name = "syn_prelude"
@@ -16,4 +21,4 @@ syn = { version = "2", features = ["full", "extra-traits"] }
 proc-macro2 = { version = "1", features = ["span-locations"] }
 quote = { version = "1" }
 convert_case = "0.6"
-syn-prelude-macros = { path = "syn-prelude-macros" }
+syn-prelude-macros = { version = "0.1.0" }

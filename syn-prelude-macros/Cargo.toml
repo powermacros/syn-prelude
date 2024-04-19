@@ -2,6 +2,11 @@
 name = "syn-prelude-macros"
 version = "0.1.0"
 edition = "2021"
+description = "proc macros for syn-prelude"
+license = "MIT"
+documentation = "https://docs.rs/syn-prelude-macros"
+homepage = "https://github.com/powermacros/syn-prelude"
+repository = "https://github.com/powermacros/syn-prelude"
 
 [lib]
 name = "syn_prelude_macros"
