@@ -1,3 +1,4 @@
+mod amend_syn_error;
 mod fork;
 mod parse_as_ident;
 mod parse_as_litstr;
@@ -11,6 +12,7 @@ mod try_parse_one_of_idents;
 mod with_prefix;
 mod with_suffix;
 
+pub use amend_syn_error::*;
 pub use fork::*;
 pub use parse_as_ident::*;
 pub use parse_as_litstr::*;
