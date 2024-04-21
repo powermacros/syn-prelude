@@ -149,3 +149,38 @@ impl<T> JoinSynErrors for Vec<syn::Result<T>> {
         }
     }
 }
+
+impl<T1, T2> JoinSynErrors for (syn::Result<T1>, syn::Result<T2>) {
+    fn join_errors(self) -> Option<syn::Error> {
+        match self {
+            (Ok(_), Ok(_)) => None,
+            (Ok(_), Err(err2)) => Some(err2),
+            (Err(err1), Ok(_)) => Some(err1),
+            (Err(mut err1), Err(err2)) => {
+                err1.combine(err2);
+                Some(err1)
+            }
+        }
+    }
+}
+
+impl<T1, T2, T3> JoinSynErrors for (syn::Result<T1>, syn::Result<T2>, syn::Result<T3>) {
+    fn join_errors(self) -> Option<syn::Error> {
+        let mut err = self.0.err();
+        if let Err(err2) = self.1 {
+            if let Some(err) = &mut err {
+                err.combine(err2);
+            } else {
+                err = Some(err2);
+            }
+        }
+        if let Err(err3) = self.2 {
+            if let Some(err) = &mut err {
+                err.combine(err3);
+            } else {
+                err = Some(err3);
+            }
+        }
+        err
+    }
+}
