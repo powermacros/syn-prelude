@@ -113,12 +113,12 @@ impl ToOptionalSynError for Vec<Option<Span>> {
     }
 }
 
-pub trait JoinSynErrors {
-    fn join_errors(self) -> Option<syn::Error>;
+pub trait CombineSynErrors {
+    fn combine_errors(self) -> Option<syn::Error>;
 }
 
-impl JoinSynErrors for Vec<syn::Error> {
-    fn join_errors(self) -> Option<syn::Error> {
+impl CombineSynErrors for Vec<syn::Error> {
+    fn combine_errors(self) -> Option<syn::Error> {
         let mut i = self.into_iter();
         if let Some(mut err) = i.next() {
             while let Some(e) = i.next() {
@@ -131,11 +131,15 @@ impl JoinSynErrors for Vec<syn::Error> {
     }
 }
 
+pub trait JoinSynErrors {
+    fn join_errors(self) -> syn::Result<()>;
+}
+
 impl<T> JoinSynErrors for Vec<syn::Result<T>> {
-    fn join_errors(self) -> Option<syn::Error> {
+    fn join_errors(self) -> syn::Result<()> {
+        let mut final_err: Option<syn::Error> = None;
         let mut i = self.into_iter();
-        if let Some(res) = i.next() {
-            let mut final_err: Option<syn::Error> = None;
+        while let Some(res) = i.next() {
             if let Err(err) = res {
                 if let Some(final_err) = &mut final_err {
                     final_err.combine(err);
@@ -143,29 +147,31 @@ impl<T> JoinSynErrors for Vec<syn::Result<T>> {
                     final_err = Some(err);
                 }
             }
-            final_err
+        }
+        if let Some(err) = final_err {
+            Err(err)
         } else {
-            None
+            Ok(())
         }
     }
 }
 
 impl<T1, T2> JoinSynErrors for (syn::Result<T1>, syn::Result<T2>) {
-    fn join_errors(self) -> Option<syn::Error> {
+    fn join_errors(self) -> syn::Result<()> {
         match self {
-            (Ok(_), Ok(_)) => None,
-            (Ok(_), Err(err2)) => Some(err2),
-            (Err(err1), Ok(_)) => Some(err1),
+            (Ok(_), Ok(_)) => Ok(()),
+            (Ok(_), Err(err2)) => Err(err2),
+            (Err(err1), Ok(_)) => Err(err1),
             (Err(mut err1), Err(err2)) => {
                 err1.combine(err2);
-                Some(err1)
+                Err(err1)
             }
         }
     }
 }
 
 impl<T1, T2, T3> JoinSynErrors for (syn::Result<T1>, syn::Result<T2>, syn::Result<T3>) {
-    fn join_errors(self) -> Option<syn::Error> {
+    fn join_errors(self) -> syn::Result<()> {
         let mut err = self.0.err();
         if let Err(err2) = self.1 {
             if let Some(err) = &mut err {
@@ -181,6 +187,10 @@ impl<T1, T2, T3> JoinSynErrors for (syn::Result<T1>, syn::Result<T2>, syn::Resul
                 err = Some(err3);
             }
         }
-        err
+        if let Some(err) = err {
+            Err(err)
+        } else {
+            Ok(())
+        }
     }
 }
