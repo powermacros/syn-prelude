@@ -9,6 +9,7 @@ mod to_span;
 mod to_syn_error;
 mod try_parse_as_ident;
 mod try_parse_one_of_idents;
+mod try_parse_tokens;
 mod with_prefix;
 mod with_suffix;
 
@@ -23,5 +24,6 @@ pub use to_span::*;
 pub use to_syn_error::*;
 pub use try_parse_as_ident::*;
 pub use try_parse_one_of_idents::*;
+pub use try_parse_tokens::*;
 pub use with_prefix::*;
 pub use with_suffix::*;
