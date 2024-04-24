@@ -1,6 +1,6 @@
 [package]
 name = "syn-prelude-macros"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 description = "proc macros for syn-prelude"
 license = "MIT"

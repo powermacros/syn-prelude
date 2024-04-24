@@ -6,6 +6,7 @@ use repeat_keyword_lit_and_types::RepleatKeywordLitAndTypes;
 mod match_keyword_cases;
 mod peek_keyword_in_condition;
 mod repeat_keyword_lit_and_types;
+mod repeat_tuples_for_try_parse_multi_idents;
 
 pub(crate) const KEYWORDS: [&'static str; 50] = [
     "abstract", "as", "async", "auto", "await", "become", "box", "break", "const", "continue",
@@ -68,6 +69,18 @@ pub fn match_keyword_cases(s: proc_macro::TokenStream) -> proc_macro::TokenStrea
 #[proc_macro]
 pub fn peek_keyword_in_condition(s: proc_macro::TokenStream) -> proc_macro::TokenStream {
     match syn::parse::<PeekKeywordInCondition>(s) {
+        Ok(s) => s.to_token_stream().into(),
+        Err(err) => err.to_compile_error().into(),
+    }
+}
+
+#[proc_macro]
+pub fn impl_try_parse_one_of_idents_for_tuple(
+    s: proc_macro::TokenStream,
+) -> proc_macro::TokenStream {
+    match syn::parse::<repeat_tuples_for_try_parse_multi_idents::RepeatTuplesForTryParseMultiIdents>(
+        s,
+    ) {
         Ok(s) => s.to_token_stream().into(),
         Err(err) => err.to_compile_error().into(),
     }
