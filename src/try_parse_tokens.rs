@@ -6,6 +6,9 @@ pub trait TryParseTokens {
     fn try_parse_semi(&self) -> Option<Token![;]>;
     fn try_parse_dot(&self) -> Option<Token![.]>;
     fn try_parse_eq(&self) -> Option<Token![=]>;
+    fn try_parse_question(&self) -> Option<Token![?]>;
+    fn try_parse_warning(&self) -> Option<Token![!]>;
+    fn try_parse_dollar(&self) -> Option<Token![$]>;
 }
 
 impl TryParseTokens for ParseBuffer<'_> {
@@ -44,6 +47,30 @@ impl TryParseTokens for ParseBuffer<'_> {
     fn try_parse_eq(&self) -> Option<Token![=]> {
         if self.peek(Token![=]) {
             self.parse::<Token![=]>().ok()
+        } else {
+            None
+        }
+    }
+
+    fn try_parse_question(&self) -> Option<Token![?]> {
+        if self.peek(Token![?]) {
+            self.parse::<Token![?]>().ok()
+        } else {
+            None
+        }
+    }
+
+    fn try_parse_warning(&self) -> Option<Token![!]> {
+        if self.peek(Token![!]) {
+            self.parse::<Token![!]>().ok()
+        } else {
+            None
+        }
+    }
+
+    fn try_parse_dollar(&self) -> Option<Token![$]> {
+        if self.peek(Token![$]) {
+            self.parse::<Token![$]>().ok()
         } else {
             None
         }
