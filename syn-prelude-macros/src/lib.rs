@@ -7,6 +7,7 @@ mod match_keyword_cases;
 mod peek_keyword_in_condition;
 mod repeat_keyword_lit_and_types;
 mod repeat_tuples_for_try_parse_multi_idents;
+mod span_tuples_to_span;
 
 pub(crate) const KEYWORDS: [&'static str; 50] = [
     "abstract", "as", "async", "auto", "await", "become", "box", "break", "const", "continue",
@@ -81,6 +82,14 @@ pub fn impl_try_parse_one_of_idents_for_tuple(
     match syn::parse::<repeat_tuples_for_try_parse_multi_idents::RepeatTuplesForTryParseMultiIdents>(
         s,
     ) {
+        Ok(s) => s.to_token_stream().into(),
+        Err(err) => err.to_compile_error().into(),
+    }
+}
+
+#[proc_macro]
+pub fn span_tuples_to_span(s: proc_macro::TokenStream) -> proc_macro::TokenStream {
+    match syn::parse::<span_tuples_to_span::SpanTuplesToSpan>(s) {
         Ok(s) => s.to_token_stream().into(),
         Err(err) => err.to_compile_error().into(),
     }
