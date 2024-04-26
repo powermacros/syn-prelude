@@ -55,32 +55,18 @@ impl ToOptionalSynError for Vec<Span> {
     }
 }
 
-impl<T: ToSpan> ToOptionalSynError for Vec<T> {
-    fn to_optional_syn_error<S: Display>(&self, message: S) -> Option<Error> {
-        if let Some(first) = self.first() {
-            let span = first.to_span();
-            Some(if let Some(last) = self.last() {
-                Error::new(span.join(last.to_span()).unwrap_or(span), message)
-            } else {
-                Error::new(span, message)
-            })
-        } else {
-            None
-        }
-    }
-}
-
 impl<T: ToSpan + Clone> ToOptionalSynError for Vec<Option<T>> {
     fn to_optional_syn_error<S: Display>(&self, message: S) -> Option<Error> {
-        if let Some(spans) = self
-            .iter()
-            .map(|span| span.clone())
-            .collect::<Option<Vec<_>>>()
-        {
-            spans.to_optional_syn_error(message)
-        } else {
-            None
-        }
+        self.iter()
+            .map(|s| s.as_ref().map(|s| s.to_span()))
+            .reduce(|a, b| match (a, b) {
+                (None, None) => None,
+                (None, Some(b)) => Some(b.to_span()),
+                (Some(a), None) => Some(a.to_span()),
+                (Some(a), Some(b)) => a.to_span().join(b.to_span()),
+            })
+            .flatten()
+            .map(|span| span.to_syn_error(message))
     }
 }
 
@@ -93,20 +79,6 @@ impl<T: ToSpan, P> ToOptionalSynError for Punctuated<T, P> {
             } else {
                 Error::new(span, message)
             })
-        } else {
-            None
-        }
-    }
-}
-
-impl ToOptionalSynError for Vec<Option<Span>> {
-    fn to_optional_syn_error<S: Display>(&self, message: S) -> Option<Error> {
-        if let Some(spans) = self
-            .iter()
-            .map(|span| span.clone())
-            .collect::<Option<Vec<_>>>()
-        {
-            spans.to_optional_syn_error(message)
         } else {
             None
         }
