@@ -5,6 +5,12 @@ pub trait ToSpan {
     fn to_span(&self) -> Span;
 }
 
+impl ToSpan for Span {
+    fn to_span(&self) -> Span {
+        *self
+    }
+}
+
 impl ToSpan for &syn::Ident {
     fn to_span(&self) -> Span {
         self.span()
