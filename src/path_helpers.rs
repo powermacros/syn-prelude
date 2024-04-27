@@ -1,8 +1,11 @@
 use proc_macro2::Span;
-use syn::{punctuated::Punctuated, spanned::Spanned, Ident, PathArguments, PathSegment, Token};
+use syn::{
+    punctuated::Punctuated, spanned::Spanned, Ident, PathArguments, PathSegment, Token, TypePath,
+};
 
 pub trait PathHelpers {
     fn new() -> Self;
+    fn to_type(self) -> syn::Type;
     fn from_ident<I: IntoIdent>(origin: I) -> Self;
     fn push_segment<S: IntoSegment>(&mut self, segment: S) -> &mut Self;
     fn modify_segment_at<F: FnOnce(&mut PathSegment)>(
@@ -113,6 +116,13 @@ impl PathHelpers for syn::Path {
             leading_colon: None,
             segments: Punctuated::new(),
         }
+    }
+
+    fn to_type(self) -> syn::Type {
+        syn::Type::Path(TypePath {
+            qself: None,
+            path: self,
+        })
     }
 
     fn from_ident<I: IntoIdent>(origin: I) -> Self {
