@@ -51,7 +51,7 @@ ident_names_for_list!(8);
 ident_names_for_list!(9);
 ident_names_for_list!(10);
 
-impl_try_parse_one_of_idents_for_tuple!(10);
+impl_try_parse_one_of_idents_for_tuple!(20);
 
 impl TryParseOneOfIdents for ParseStream<'_> {
     fn try_parse_one_of_idents<Names: IdentNames>(&self, names: Names) -> Option<Ident> {
