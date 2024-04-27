@@ -1,37 +1,44 @@
 use proc_macro2::Span;
-use syn::{punctuated::Punctuated, Ident, PathArguments, PathSegment, Token};
+use syn::{punctuated::Punctuated, spanned::Spanned, Ident, PathArguments, PathSegment, Token};
 
 pub trait PathHelpers {
     fn new() -> Self;
-    fn from_ident(origin: &Ident) -> Self;
+    fn from_ident<I: IntoIdent>(origin: I) -> Self;
     fn push_segment<S: IntoSegment>(&mut self, segment: S) -> &mut Self;
-    fn modify_segment_at(
+    fn modify_segment_at<F: FnOnce(&mut PathSegment)>(
         &mut self,
         index: usize,
-        modify: impl FnMut(&mut PathSegment),
+        modify: F,
     ) -> &mut Self;
-    fn push_ident_arg(&mut self, index: usize, ident: &Ident) -> &mut Self {
+    fn push_arg(&mut self, index: usize, typ: syn::Type) -> &mut Self {
         self.modify_segment_at(index, |segment| {
-            let arg = syn::GenericArgument::Type(syn::Type::Path(syn::TypePath {
-                qself: None,
-                path: syn::Path::from_ident(ident),
-            }));
+            let span = typ.span();
+            let arg = syn::GenericArgument::Type(typ);
             if let syn::PathArguments::AngleBracketed(args) = &mut segment.arguments {
                 args.args.push(arg)
             } else {
                 segment.arguments =
                     syn::PathArguments::AngleBracketed(syn::AngleBracketedGenericArguments {
                         colon2_token: None,
-                        lt_token: Token![<](ident.span()),
+                        lt_token: Token![<](span),
                         args: {
                             let mut args = Punctuated::new();
                             args.push(arg);
                             args
                         },
-                        gt_token: Token![>](ident.span()),
+                        gt_token: Token![>](span),
                     })
             }
         })
+    }
+    fn push_ident_arg(&mut self, index: usize, ident: Ident) -> &mut Self {
+        self.push_arg(
+            index,
+            syn::Type::Path(syn::TypePath {
+                qself: None,
+                path: syn::Path::from_ident(ident),
+            }),
+        )
     }
 }
 
@@ -78,6 +85,28 @@ impl IntoSegment for (&str, Span) {
     }
 }
 
+pub trait IntoIdent {
+    fn into_ident(self) -> syn::Ident;
+}
+
+impl IntoIdent for Ident {
+    fn into_ident(self) -> syn::Ident {
+        self
+    }
+}
+
+impl IntoIdent for &Ident {
+    fn into_ident(self) -> syn::Ident {
+        self.clone()
+    }
+}
+
+impl IntoIdent for (&str, Span) {
+    fn into_ident(self) -> syn::Ident {
+        syn::Ident::new(self.0, self.1)
+    }
+}
+
 impl PathHelpers for syn::Path {
     fn new() -> Self {
         Self {
@@ -86,9 +115,9 @@ impl PathHelpers for syn::Path {
         }
     }
 
-    fn from_ident(origin: &Ident) -> Self {
+    fn from_ident<I: IntoIdent>(origin: I) -> Self {
         let mut path = Self::new();
-        path.push_segment(origin);
+        path.push_segment(origin.into_ident());
         path
     }
 
@@ -97,10 +126,10 @@ impl PathHelpers for syn::Path {
         self
     }
 
-    fn modify_segment_at(
+    fn modify_segment_at<F: FnOnce(&mut PathSegment)>(
         &mut self,
         index: usize,
-        mut modify: impl FnMut(&mut PathSegment),
+        modify: F,
     ) -> &mut Self {
         if let Some((_, segment)) = self
             .segments
