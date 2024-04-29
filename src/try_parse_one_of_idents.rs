@@ -2,7 +2,7 @@ use syn::{
     parse::{discouraged::Speculative, ParseBuffer, ParseStream},
     token, Ident,
 };
-use syn_prelude_macros::{impl_try_parse_one_of_idents_for_tuple, match_keyword_cases};
+use syn_prelude_macros::{gen_tuples_for_impl_ident_names, match_keyword_cases};
 
 pub trait TryParseOneOfIdents {
     fn try_parse_one_of_idents<Names: IdentNames>(&self, names: Names) -> Option<Ident>;
@@ -51,7 +51,7 @@ ident_names_for_list!(8);
 ident_names_for_list!(9);
 ident_names_for_list!(10);
 
-impl_try_parse_one_of_idents_for_tuple!(20);
+gen_tuples_for_impl_ident_names!(2..20);
 
 impl TryParseOneOfIdents for ParseStream<'_> {
     fn try_parse_one_of_idents<Names: IdentNames>(&self, names: Names) -> Option<Ident> {

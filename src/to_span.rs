@@ -1,5 +1,5 @@
 use proc_macro2::Span;
-use syn_prelude_macros::span_tuples_to_span;
+use syn_prelude_macros::gen_tuples_for_impl_to_span;
 
 pub trait ToSpan {
     fn to_span(&self) -> Span;
@@ -35,4 +35,4 @@ impl<T: ToSpan> ToSpan for Vec<T> {
     }
 }
 
-span_tuples_to_span!(2..10);
+gen_tuples_for_impl_to_span!(2..10);

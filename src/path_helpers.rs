@@ -2,11 +2,13 @@ use proc_macro2::Span;
 use syn::{
     punctuated::Punctuated, spanned::Spanned, Ident, PathArguments, PathSegment, Token, TypePath,
 };
+use syn_prelude_macros::gen_tuples_for_impl_into_idents;
 
 pub trait PathHelpers {
     fn new() -> Self;
     fn to_type(self) -> syn::Type;
     fn from_ident<I: IntoIdent>(origin: I) -> Self;
+    fn from_idents<I: IntoIdents>(origin: I) -> Self;
     fn push_segment<S: IntoSegment>(&mut self, segment: S) -> &mut Self;
     fn modify_segment_at<F: FnOnce(&mut PathSegment)>(
         &mut self,
@@ -110,6 +112,12 @@ impl IntoIdent for (&str, Span) {
     }
 }
 
+pub trait IntoIdents {
+    fn into_idents(self) -> impl Iterator<Item = Ident>;
+}
+
+gen_tuples_for_impl_into_idents!(2..=10);
+
 impl PathHelpers for syn::Path {
     fn new() -> Self {
         Self {
@@ -128,6 +136,14 @@ impl PathHelpers for syn::Path {
     fn from_ident<I: IntoIdent>(origin: I) -> Self {
         let mut path = Self::new();
         path.push_segment(origin.into_ident());
+        path
+    }
+
+    fn from_idents<I: IntoIdents>(origin: I) -> Self {
+        let mut path = Self::new();
+        for ident in origin.into_idents() {
+            path.push_segment(ident);
+        }
         path
     }
 

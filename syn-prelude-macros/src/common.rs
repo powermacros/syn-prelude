@@ -1,19 +1,17 @@
 use proc_macro2::Span;
-use quote::quote;
-use quote::{ToTokens, TokenStreamExt};
 use syn::{
     parse::{Parse, ParseStream},
     spanned::Spanned,
-    Expr, ExprLit, ExprRange, Lit, LitInt, RangeLimits,
+    Expr, ExprLit, ExprRange, Lit, RangeLimits,
 };
 
-pub struct SpanTuplesToSpan {
-    span: Span,
-    start_value: usize,
-    end_value: usize,
+pub(crate) struct TupleGen {
+    pub(crate) span: Span,
+    pub(crate) start_value: usize,
+    pub(crate) end_value: usize,
 }
 
-impl Parse for SpanTuplesToSpan {
+impl Parse for TupleGen {
     fn parse(input: ParseStream) -> syn::Result<Self> {
         let range = input.parse::<ExprRange>()?;
         let start = if let Some(start) = &range.start {
@@ -58,35 +56,8 @@ impl Parse for SpanTuplesToSpan {
     }
 }
 
-impl ToTokens for SpanTuplesToSpan {
-    fn to_tokens(&self, tokens: &mut proc_macro2::TokenStream) {
-        for n in self.start_value..self.end_value {
-            let t_types = (0..n).into_iter().map(|n| {
-                let ident = syn::Ident::new(&format!("T{n}"), self.span);
-                quote!(#ident: ToSpan)
-            });
-            let t_tuples = (0..n).into_iter().map(|n| {
-                let ident = syn::Ident::new(&format!("T{n}"), self.span);
-                quote!(#ident)
-            });
-            let joins = (1..n).into_iter().map(|n| {
-                let n = LitInt::new(&format!("{n}"), self.span);
-                quote! {
-                    if let Some(new) = span.join(self.#n.to_span()) {
-                        span = new;
-                    }
-                }
-            });
-
-            tokens.append_all(quote! {
-                impl<#(#t_types),*> ToSpan for (#(#t_tuples),*) {
-                    fn to_span(&self) -> Span {
-                        let mut span = self.0.to_span();
-                        #(#joins)*
-                        span
-                    }
-                }
-            })
-        }
+impl TupleGen {
+    pub(crate) fn iter(&self) -> impl Iterator<Item = usize> {
+        (self.start_value..self.end_value).into_iter()
     }
 }

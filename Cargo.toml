@@ -1,6 +1,6 @@
 [package]
 name = "syn-prelude"
-version = "0.1.9"
+version = "0.1.10"
 edition = "2021"
 description = "prelude traits and helpers for enhancing 'syn'/'proc-macro2' lib"
 license = "MIT"
@@ -21,4 +21,4 @@ syn = { version = "2", features = ["full", "extra-traits"] }
 proc-macro2 = { version = "1", features = ["span-locations"] }
 quote = { version = "1" }
 convert_case = "0.6"
-syn-prelude-macros = { version = "0.1.2" }
+syn-prelude-macros = { version = "0.1.3" }

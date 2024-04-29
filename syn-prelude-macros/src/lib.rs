@@ -3,11 +3,13 @@ use peek_keyword_in_condition::PeekKeywordInCondition;
 use quote::ToTokens;
 use repeat_keyword_lit_and_types::RepleatKeywordLitAndTypes;
 
+mod common;
 mod match_keyword_cases;
+mod path_helpers;
 mod peek_keyword_in_condition;
 mod repeat_keyword_lit_and_types;
-mod repeat_tuples_for_try_parse_multi_idents;
-mod span_tuples_to_span;
+mod to_span;
+mod try_parse_one_of_idents;
 
 pub(crate) const KEYWORDS: [&'static str; 50] = [
     "abstract", "as", "async", "auto", "await", "become", "box", "break", "const", "continue",
@@ -76,21 +78,25 @@ pub fn peek_keyword_in_condition(s: proc_macro::TokenStream) -> proc_macro::Toke
 }
 
 #[proc_macro]
-pub fn impl_try_parse_one_of_idents_for_tuple(
-    s: proc_macro::TokenStream,
-) -> proc_macro::TokenStream {
-    match syn::parse::<repeat_tuples_for_try_parse_multi_idents::RepeatTuplesForTryParseMultiIdents>(
-        s,
-    ) {
-        Ok(s) => s.to_token_stream().into(),
+pub fn gen_tuples_for_impl_ident_names(s: proc_macro::TokenStream) -> proc_macro::TokenStream {
+    match syn::parse::<common::TupleGen>(s) {
+        Ok(s) => s.gen_tuples_for_impl_ident_names().into(),
         Err(err) => err.to_compile_error().into(),
     }
 }
 
 #[proc_macro]
-pub fn span_tuples_to_span(s: proc_macro::TokenStream) -> proc_macro::TokenStream {
-    match syn::parse::<span_tuples_to_span::SpanTuplesToSpan>(s) {
-        Ok(s) => s.to_token_stream().into(),
+pub fn gen_tuples_for_impl_to_span(s: proc_macro::TokenStream) -> proc_macro::TokenStream {
+    match syn::parse::<common::TupleGen>(s) {
+        Ok(s) => s.gen_tuples_for_impl_to_span().into(),
+        Err(err) => err.to_compile_error().into(),
+    }
+}
+
+#[proc_macro]
+pub fn gen_tuples_for_impl_into_idents(s: proc_macro::TokenStream) -> proc_macro::TokenStream {
+    match syn::parse::<common::TupleGen>(s) {
+        Ok(s) => s.gen_tuples_for_impl_into_idents().into(),
         Err(err) => err.to_compile_error().into(),
     }
 }
