@@ -9,6 +9,18 @@ pub trait ToExpr {
     fn to_expr(self) -> Expr;
 }
 
+impl ToExpr for Expr {
+    fn to_expr(self) -> Expr {
+        self
+    }
+}
+
+impl ToExpr for &Expr {
+    fn to_expr(self) -> Expr {
+        self.clone()
+    }
+}
+
 impl ToExpr for LitStr {
     fn to_expr(self) -> Expr {
         Expr::Lit(ExprLit {
