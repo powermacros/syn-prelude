@@ -22,7 +22,10 @@ impl<T: ToSpan> ToSpan for Vec<T> {
         if let Some(first) = self.first() {
             if self.len() > 1 {
                 if let Some(last) = self.last() {
-                    first.to_span().resolved_at(last.to_span())
+                    first
+                        .to_span()
+                        .join(last.to_span())
+                        .unwrap_or(first.to_span())
                 } else {
                     first.to_span()
                 }
