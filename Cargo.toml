@@ -1,6 +1,6 @@
 [package]
 name = "syn-prelude"
-version = "0.1.11"
+version = "0.1.12"
 edition = "2021"
 description = "prelude traits and helpers for enhancing 'syn'/'proc-macro2' lib"
 license = "MIT"
